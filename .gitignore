@@ -1,0 +1,9 @@
+# local build output
+dist/
+*.dbxp
+*.artifact.json
+
+# tooling / agent workspace
+.idea/
+.workbuddy/
+.tmp/

@@ -7,7 +7,7 @@ an AI that is forgetting: you decide which of its memories stay and which go.
 Delete one card, and what it says on the next pages changes — visibly.
 
 - 8 memories, two chapters, one ending. ~15 minutes.
-- Pure local: one self-contained HTML file + WASM. No network, no permissions.
+- Pure local: one self-contained HTML file + WASM. No network, no storage, no permissions.
 - Every playthrough exports a replayable `.rec` stream — anyone can re-run
   anyone's session and see exactly which decision landed where.
 - Evolved from the hash-chain idea in [dbx-sql-guard](https://github.com/zaojiaoci/dbx-sql-guard):
@@ -18,9 +18,13 @@ https://zaojiaoci.itch.io/it-is-maintaining-a-conversation
 
 ## Build
 
+This repository holds the packaged plugin, not the narrative kernel's source:
+`ui/index.html` is the final artifact (WASM blob + wasm2js fallback + UI), and
+there is no build step in this repo. The Rust kernel source is available to DBX
+reviewers on request.
+
 ```bash
-python3 web/build.py        # emits dist/crossgame-micro.html and copies it to plugin/ui/
-npx @dbx-app/plugin-cli package plugin/
+npx @dbx-app/plugin-cli package .
 ```
 
 The game content inside `ui/index.html` is **not** under the code license —
@@ -34,7 +38,7 @@ see [LICENSE-content.md](LICENSE-content.md).
 决定它记住什么、忘掉什么。删掉一张纸片，它后面几页说的话就会变——看得见地变。
 
 - 8 条记忆、两章、一个结局。约 15 分钟。
-- 纯本地：单文件 HTML + WASM，无网络、零权限。
+- 纯本地：单文件 HTML + WASM，无网络、无存储、零权限。
 - 每一局都能导出可回放的 `.rec` 输入流——任何人可以重放任何人的一局，
   每个决定落在哪一帧都查得到。
 - 从 [dbx-sql-guard](https://github.com/zaojiaoci/dbx-sql-guard) 的哈希链思想

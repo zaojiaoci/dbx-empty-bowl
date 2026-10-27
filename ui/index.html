@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>它在维护一场对话</title>
+<title>空碗 · 十五分钟</title>
 <style>
   /* 内嵌字体子集（T4）：思源宋体（Noto Serif SC，OFL，asset-ledger 已覆盖许可）。
      为什么是两个 @font-face 而不是一个文件：CID-keyed CFF 字体无法用 fontTools
@@ -74,16 +74,6 @@
   #intro p:last-child { margin-bottom: 0; color: var(--ink-soft); font-size: 14px; }
   #intro.hidden { display: none; }
   #intro strong { color: var(--accent); font-weight: 600; }
-  /* 存档续玩（T2）：intro 里的一行，只在真有未玩完的局时出现。
-     「继续」是主动作（朱色），「重新开始」压暗——防误触清掉 90 分钟进度。 */
-  #intro .resume-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; color: var(--ink-soft); }
-  #intro .resume-row button {
-    font-family: inherit; font-size: 13px; padding: 4px 14px;
-    border: 1px solid var(--ink-soft); border-radius: 2px;
-    background: var(--card); color: var(--ink); cursor: pointer;
-  }
-  #intro .resume-row .resume-go { border-color: var(--accent); color: var(--accent); font-weight: 600; }
-  #intro .resume-row .resume-fresh { opacity: .6; }
   #intro .book-name { font-size: 17px; font-weight: 600; letter-spacing: .14em; color: var(--ink); margin-bottom: 8px; }
 
   /* 对话区 = 书页流。当前页摊开，旧页叠起（只露一行），点一下摊开。
@@ -465,11 +455,6 @@
   }
   #rec-copy { font-family: inherit; padding: 8px 20px; background: var(--accent); color: #fff; border: none; border-radius: 3px; cursor: pointer; }
 
-  #dbg-row { margin-top: 18px; border-top: 1px dashed var(--line); padding-top: 10px; }
-  #dbg-row.hidden { display: none; }
-  #dbg { font-family: monospace; font-size: 11px; color: var(--ink-soft); }
-  #dbg-input { font-family: monospace; width: 60%; padding: 4px 8px; }
-
   /* ============ DecayFx：精度降级的视觉通道（不显示任何数值） ============ */
   /* Tracking（追踪）：字距渐松——它开始"跟丢"这段记忆 */
   .fx-tracking-0 { letter-spacing: .02em; }
@@ -544,11 +529,6 @@
     <button id="rec-copy">复制日志</button>
   </section>
 
-  <div id="dbg-row">
-    <span id="dbg"></span>
-    <form id="dbg-form"><input id="dbg-input" placeholder="调试：直接输 token（A6 锚定 / F6 遗忘 / L6.41 关联 / U6.41 断连 / Q6:o 质询 / N 推进 / T 翻账）"></form>
-  </div>
-
   <!-- v0.32：构建期开关——build.py 把 false 替换成 "true"/"false"，
        产出 crossgame-v2.html（默认 v2，测试者双击即玩）与 crossgame-slice.html
        （默认 v1）。模板直开时替换串不命中任何一侧 ⇒ 降级为 v1，不会报错。
@@ -556,12 +536,11 @@
        DBX 插件形态 B：8 卡两章单结局）。三份产物共用同一份 sim。 -->
   <script>window.CROSSGAME_DEFAULT_V2 = ("false" === "true");</script>
   <script>window.CROSSGAME_DEFAULT_MICRO = ("true" === "true");</script>
-  <!-- v0.48 JS 内核（wasm2js 转译产物，text/plain 不执行）：宿主 CSP 拦
-       WebAssembly 时的回落路。boot 里 Blob URL module 动态 import 它——
-       CSP 的 script-src 含 blob: 即可运行，不需要 wasm-unsafe-eval。
-       保真锁：.tmp/verify-js-kernel.mjs（30 局随机流 + rec 重放 + trap 路径
-       与真 WASM 内核逐帧 frame_buf 字节等价）。 -->
-  <script type="text/plain" id="kernel-asm">const env = new Proxy({}, { get: () => () => 0 });
+  <!-- v0.48 JS 内核（wasm2js 转译产物）：宿主 CSP 拦 WebAssembly 时的回落路。
+       整段包成一个函数挂着，平时只解析不执行；WASM 起不来时才调用。
+       静态脚本，不加载外部代码，不碰 eval。 -->
+  <script>window.__loadJsKernel = function () {
+const env = new Proxy({}, { get: () => () => 0 });
 
   var bufferView;
   var base64ReverseLookup = new Uint8Array(123/*'z'+1*/);
@@ -32643,21 +32622,24 @@ function asmFunc(imports) {
 var retasmFunc = asmFunc({
   "env": env,
 });
-export var memory = retasmFunc.memory;
-export var alloc = retasmFunc.alloc;
-export var digest_buf_len = retasmFunc.digest_buf_len;
-export var digest_buf_ptr = retasmFunc.digest_buf_ptr;
-export var err_buf_len = retasmFunc.err_buf_len;
-export var err_buf_ptr = retasmFunc.err_buf_ptr;
-export var frame_buf_len = retasmFunc.frame_buf_len;
-export var frame_buf_ptr = retasmFunc.frame_buf_ptr;
-export var sim_digests = retasmFunc.sim_digests;
-export var sim_frame = retasmFunc.sim_frame;
-export var sim_free = retasmFunc.sim_free;
-export var sim_new = retasmFunc.sim_new;
-export var sim_new_micro = retasmFunc.sim_new_micro;
-export var sim_new_v2 = retasmFunc.sim_new_v2;
-export var sim_tick = retasmFunc.sim_tick;
+return {
+  memory: retasmFunc.memory,
+  alloc: retasmFunc.alloc,
+  digest_buf_len: retasmFunc.digest_buf_len,
+  digest_buf_ptr: retasmFunc.digest_buf_ptr,
+  err_buf_len: retasmFunc.err_buf_len,
+  err_buf_ptr: retasmFunc.err_buf_ptr,
+  frame_buf_len: retasmFunc.frame_buf_len,
+  frame_buf_ptr: retasmFunc.frame_buf_ptr,
+  sim_digests: retasmFunc.sim_digests,
+  sim_frame: retasmFunc.sim_frame,
+  sim_free: retasmFunc.sim_free,
+  sim_new: retasmFunc.sim_new,
+  sim_new_micro: retasmFunc.sim_new_micro,
+  sim_new_v2: retasmFunc.sim_new_v2,
+  sim_tick: retasmFunc.sim_tick,
+};
+};
 </script>
   <script>/* audio.js — 环境声层（v0.39）。
  *
@@ -33178,7 +33160,6 @@ export var sim_tick = retasmFunc.sim_tick;
 
   const params = new URLSearchParams(location.search);
   const SEED = Number(params.get('seed') || '42');
-  const DEBUG = params.get('debug') === '1';
   // slice-v2 窄全链路（四章 + 结局 C）：两条路都通向 v2——
   // ① dist/crossgame-v2.html 独立文件（build.py 内嵌默认开关，测试者双击即玩，
   //    不需要懂查询参数；文件传输/聊天预览会吞掉 ?v2=1，所以分发走独立文件）；
@@ -33214,85 +33195,6 @@ export var sim_tick = retasmFunc.sim_tick;
   const linkHome = new Map(); // 源 id → 家 id（L###.### 的并入指定）
   const cardFate = new Map(); // id → 下场文案（F### 时定格）
 
-  // ---------------------------------------------------------------- 存档（T2）
-
-  /** 存档 = .rec 输入流本身（`frames` 数组）+ 链路与种子，**不序列化状态**——
-   *  确定性内核已经保证「同输入流 ⇒ 同逐帧哈希」（todo-release T2 的判据：
-   *  任意帧退出→重开→画面与哈希都与退出前一致），回放即恢复。
-   *  存的是玩家原始动作，与回收面板导出的 .rec 同一份字节 ⇒ Steam Cloud
-   *  以后直接同步这个 key 即可，不需要第二套格式。 */
-  const SAVE_KEY = 'crossgame.save.' + (MICRO ? 'micro' : V2 ? 'v2' : 'v1');
-
-  function saveNow() {
-    try {
-      localStorage.setItem(
-        SAVE_KEY,
-        JSON.stringify({ v: 1, v2: V2, seed: SEED, frames }),
-      );
-    } catch (_) {
-      /* 隐私模式 / 存储超额 / node（smoke 无 DOM）：静默降级——
-         存档是便利不是功能，游戏与 .rec 回收都不经过它。 */
-    }
-  }
-
-  function loadSave() {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (!raw) return null;
-      const s = JSON.parse(raw);
-      // 只认同一链路、同种子、且真的动过手的局（首帧空局不值得「继续」）。
-      // micro 是 2026-10-27 加的第三态：老存档没有 s.micro 字段 ⇒ 归一成 false 比对，
-      // 不误伤 v1/v2 玩家已有的存档。
-      if (!s || s.v !== 1 || (s.micro === true) !== MICRO || s.v2 !== V2 || s.seed !== SEED)
-        return null;
-      if (!Array.isArray(s.frames) || s.frames.length < 2) return null;
-      return s;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function clearSave() {
-    try {
-      localStorage.removeItem(SAVE_KEY);
-    } catch (_) {
-      /* 拿不到就当没有 */
-    }
-  }
-
-  /** 续玩：存档里的输入流逐帧喂回内核。第 1 帧（空动作）boot 时已 tick 过，
-   *  从第 2 帧起回放；回放完 frames 整体换回存档那份（n 与文本原样）——
-   *  之后玩家接着玩，导出的 .rec 与一口气打到底逐字节同构。 */
-  function resumeFrom(save) {
-    for (const f of save.frames.slice(1)) last = client.tick(f.text);
-    frames.length = 0;
-    for (const f of save.frames) frames.push(f);
-    render();
-  }
-
-  /** intro 里长出的一行：继续 / 重新开始。只在真有未玩完的局时出现——
-   *  刷新即从头是 90 分钟叙事游戏的差评生成器（todo-release T2 现状）。 */
-  function offerResume(save) {
-    const row = el('p', 'resume-row');
-    row.appendChild(
-      document.createTextNode('有一局没玩完（到第 ' + save.frames.length + ' 帧）——'),
-    );
-    const go = el('button', 'resume-go', '继续');
-    const fresh = el('button', 'resume-fresh', '重新开始');
-    go.addEventListener('click', () => {
-      row.remove();
-      resumeFrom(save);
-    });
-    fresh.addEventListener('click', () => {
-      row.remove();
-      clearSave();
-      saveNow();
-    });
-    row.appendChild(go);
-    row.appendChild(fresh);
-    $('#intro').appendChild(row);
-  }
-
   // ---------------------------------------------------------------- token 合成
 
   function send(tokens) {
@@ -33321,7 +33223,6 @@ export var sim_tick = retasmFunc.sim_tick;
     selected = null;
     pendingLink = null;
     render();
-    saveNow(); // T2：每个动作落盘——刷新、误关、换设备都不丢进度
   }
 
   // ---------------------------------------------------------------- 渲染
@@ -33628,9 +33529,10 @@ export var sim_tick = retasmFunc.sim_tick;
     if (MICRO && endingPlayed() && !document.getElementById('memory-list')) {
       panel0.parentNode.insertBefore(buildMemoryList(), panel0);
     }
-    // 微缩版 Credits（形态 B 的导流落点，2026-10-27）：只在微缩版出现，只出现
-    // 一次——署名演化故事 + 完整版去处。合规形态是「Credits 屏署名」（不是弹窗
-    // 不是横幅）；.rec 导出位的落点是它自己的面板，两处都有正当身份。
+    // 微缩版 Credits（2026-10-27）：只在微缩版出现，只出现一次——署名演化
+    // 故事 + 完整版去处。落点是「Credits 屏署名」（不是弹窗、不是横幅）。
+    // 沙箱没有 openExternal，新窗口也未必放行 ⇒ 这里只写地址、不挂 <a>：
+    // 不挂 <a>：可读、可抄，点击走商店页的 homepage。
     if (MICRO) {
       if (!document.getElementById('micro-credits')) {
         const c = document.createElement('div');
@@ -33641,7 +33543,8 @@ export var sim_tick = retasmFunc.sim_tick;
           '<p>空碗 · 十五分钟——从 dbx-sql-guard 的哈希链思想演化而来。</p>' +
           '<p>这份清单只是开头。那份对不上的东西到底是什么，把账放到它面前之后' +
           '又发生了什么——完整版里会摊开。</p>' +
-          '<p>完整版（四章 14 卡三个结局，约 90 分钟）免费：<a href="https://zaojiaoci.itch.io/it-is-maintaining-a-conversation" target="_blank" rel="noopener">zaojiaoci.itch.io/it-is-maintaining-a-conversation</a></p>';
+          '<p>完整版（四章 14 卡三个结局，约 90 分钟）免费，在 itch.io：' +
+          'zaojiaoci.itch.io/it-is-maintaining-a-conversation</p>';
         panel0.parentNode.insertBefore(c, panel0.nextSibling);
       }
     }
@@ -33944,7 +33847,7 @@ export var sim_tick = retasmFunc.sim_tick;
     // 门控仍在 sim（第 4 章 + 041 存活）；这里只负责「故事讲完了才给这个按钮」。
     // v0.44：`!endingPlayed()`——终幕演过就撤。结局后还亮着一枚红按钮，玩家会
     // 再按一次换来「这一局已经收尾了。」（作者 2026-10-24 实测，见 endingPlayed）。
-    // 刷新续玩同一条路：renderButtons 在 resumeFrom 的 render 里跑，判据读对话流。
+    // 刷新重开走同一条路：renderButtons 在 render 里跑，判据读对话流。
     if ((V2 || MICRO) && scriptSettled() && !endingPlayed()) {
       const present = el('button', 'verb ending', '把账放到它面前');
       present.dataset.action = 'P';
@@ -34091,7 +33994,6 @@ export var sim_tick = retasmFunc.sim_tick;
     } else {
       $('#audit').classList.add('hidden');
     }
-    if (DEBUG) $('#dbg').textContent = `frame=${last.frame} hash=${last.stateHash.slice(0, 16)}…`;
   }
 
   // ---------------------------------------------------------------- .rec 回收
@@ -34155,23 +34057,6 @@ export var sim_tick = retasmFunc.sim_tick;
     });
   }
 
-  // ---------------------------------------------------------------- 调试
-
-  function wireDebug() {
-    if (!DEBUG) {
-      $('#dbg-row').classList.add('hidden');
-      return;
-    }
-    $('#dbg-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const input = $('#dbg-input');
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = '';
-      send(text.split(/\s+/));
-    });
-  }
-
   function flash(msg) {
     const host = $('#flash');
     host.textContent = msg;
@@ -34196,12 +34081,10 @@ export var sim_tick = retasmFunc.sim_tick;
     };
   }
 
-  /** v0.48 双路内核启动。正常路是 WebAssembly；宿主 CSP 缺 'wasm-unsafe-eval'
-   *  （DBX 实测）时 instantiate 直接被拒 ⇒ 回落到 wasm2js 转译的纯 JS 内核
-   *  （template 里 text/plain #kernel-asm）。回落走动态 import，先后试
-   *  blob:（DBX 的 CSP 放行 blob:）与 data:（放行 data: 的宿主）两种 URL——
-   *  CSP 的 script-src 命中哪个都能跑，不碰 eval、不需要 wasm 放行。
-   *  两路内核行为等价锁在 .tmp/verify-js-kernel.mjs。 */
+  /** v0.48 双路内核启动。正常路是 WebAssembly；宿主内嵌浏览器不放行 WASM
+   *  （DBX 实测）时 instantiate 直接被拒 ⇒ 回落到包内静态的 wasm2js 内核
+   *  （页头的 window.__loadJsKernel）。回落是普通函数调用，不加载外部脚本、
+   *  不碰 eval。两路内核行为等价锁在 .tmp/verify-js-kernel.mjs。 */
   async function bootKernel() {
     const b64 = document.documentElement.dataset.wasm;
     const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
@@ -34209,26 +34092,12 @@ export var sim_tick = retasmFunc.sim_tick;
       const { instance } = await WebAssembly.instantiate(bytes, {});
       return instance;
     } catch (wasmErr) {
-      const holder = document.getElementById('kernel-asm');
-      const text = holder && holder.textContent;
-      if (!text || !text.trim()) throw wasmErr; // 没带 JS 内核 ⇒ 原错误上抛给 bootFail
-      const attempts = [
-        () => URL.createObjectURL(new Blob([text], { type: 'text/javascript' })),
-        () => 'data:text/javascript;base64,' + btoa(unescape(encodeURIComponent(text))),
-      ];
-      let lastErr = wasmErr;
-      for (const makeUrl of attempts) {
-        const url = makeUrl();
-        try {
-          const mod = await import(url);
-          return { exports: adaptAsmExports(mod) };
-        } catch (e) {
-          lastErr = e;
-        } finally {
-          if (url.startsWith('blob:')) URL.revokeObjectURL(url);
-        }
+      if (typeof window.__loadJsKernel !== 'function') throw wasmErr;
+      try {
+        return { exports: adaptAsmExports(window.__loadJsKernel()) };
+      } catch (jsErr) {
+        throw wasmErr;
       }
-      throw lastErr;
     }
   }
 
@@ -34254,13 +34123,8 @@ export var sim_tick = retasmFunc.sim_tick;
     }
     last = client.tick(''); // 第 1 帧：空动作，拿到可渲染的树
     frames.push({ n: 1, text: '' });
-    // T2 存档：首帧即开新档；有未玩完的局才长出「继续」行（长度 <2 的空局不打扰）。
-    const save = loadSave();
-    if (save) offerResume(save);
-    else saveNow();
     wireRecPanel();
     wireVerbHelp();
-    wireDebug();
     wireKeyboard();
     wireFontToggle();
     wireAudioToggle();
@@ -34403,60 +34267,36 @@ export var sim_tick = retasmFunc.sim_tick;
   }
 
   /** v0.46 启动失败可见化：宿主内嵌浏览器（DBX 等）环境差异不该死得无声。
-   *  任何启动异常都画成红框上屏——尤其 WebAssembly 被宿主 CSP 拦下的那种，
-   *  否则玩家只看到「开场白在、按钮没了」，作者只看到一张截图。
+   *  任何启动异常都画成红框上屏——否则玩家只看到「开场白在、按钮没了」，
+   *  作者只看到一张截图。原文收进 <details> 供复制定位。
    *
-   *  v0.47（DBX 实机归因）：CSP 禁 WASM 是「宿主侧可归因」的失败——报错文本
-   *  带 WebAssembly / wasm-unsafe-eval 字样时换成可行动的降级面板（人话说明 +
-   *  网页版入口 + 给宿主的修复建议），原文错误收进 <details> 保留，便于复制
-   *  定位。其余未知失败仍走红框原文。 */
+   *  纪律：错误面板只报错。不指导宿主改安全策略，也不在任何失败路径上做
+   *  站外引导——出问题的时候不是推广的时候。 */
   function bootFail(what) {
     try {
       if (document.getElementById('boot-fail')) return;
-      const wasmBlocked = /WebAssembly|wasm-unsafe-eval|unsafe-eval/i.test(what);
+      const wasmBlocked = /WebAssembly/i.test(what);
       const d = document.createElement('div');
       d.id = 'boot-fail';
-      if (wasmBlocked) {
-        d.style.cssText =
-          'margin:12px 0;padding:14px 16px;border:1.5px solid #b98a2e;' +
-          'background:#fbf4e2;color:#4a3c1c;font-size:13px;line-height:1.8;' +
-          'border-radius:6px;';
-        const esc = String(what).replace(/[&<>]/g, (c) =>
-          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c],
-        );
-        d.innerHTML =
-          '<div style="font-size:15px;font-weight:600;margin-bottom:6px;">' +
-          '启动失败——宿主禁用了 WebAssembly，JS 内核回落也没成功</div>' +
-          '<p style="margin:0 0 8px;">这个游戏的叙事内核是 WASM。宿主内嵌浏览器的' +
-          '安全策略（CSP）<code>script-src</code> 里没有 ' +
-          "<code>'wasm-unsafe-eval'</code>，浏览器拒绝创建 WebAssembly 对象。" +
-          '本作带纯 JS 内核回落，但它也没能加载（回落走 blob: 动态 import，' +
-          '请确认 CSP 的 <code>script-src</code> 含 <code>blob:</code>）。</p>' +
-          '<p style="margin:0 0 8px;"><b>这不是游戏坏了，也不是操作系统或浏览器' +
-          '版本的问题</b>：同一份文件在 Chrome / Edge / Firefox / Safari 里正常。</p>' +
-          '<p style="margin:0 0 8px;">现在可以先玩网页版：' +
-          '<a href="https://zaojiaoci.itch.io/it-is-maintaining-a-conversation"' +
-          ' target="_blank" rel="noopener">zaojiaoci.itch.io/it-is-maintaining-a-conversation</a>' +
-          '（点不开就把地址手动复制到浏览器）。</p>' +
-          '<p style="margin:0 0 8px;">给宿主的修复建议：在 webview 的 CSP ' +
-          "<code>script-src</code> 中加入 <code>'wasm-unsafe-eval'</code>。" +
-          "该策略已含 <code>'unsafe-inline'</code>，放行 WASM 并不会放宽" +
-          '它的安全模型。</p>' +
-          '<details><summary style="cursor:pointer;">原始错误文本' +
-          '（复制给作者或宿主可直接定位）</summary>' +
-          '<pre style="white-space:pre-wrap;word-break:break-all;margin:8px 0 0;' +
-          'font-size:12px;">' + esc + '</pre></details>';
-      } else {
-        d.style.cssText =
-          'margin:12px 0;padding:12px 14px;border:1.5px solid #a32d2d;' +
-          'background:#fcebeb;color:#501313;font-size:13px;line-height:1.7;' +
-          'white-space:pre-wrap;word-break:break-all;border-radius:6px;';
-        d.textContent =
-          '启动失败——这个游戏没能在这台环境里跑起来：\n' +
-          what +
-          '\n\n若看到 WebAssembly / wasm-unsafe-eval 字样：是宿主安全策略禁用了 ' +
-          'WebAssembly，需要宿主放行；把这段文字发给作者即可定位。';
-      }
+      d.style.cssText =
+        'margin:12px 0;padding:14px 16px;border:1.5px solid #b98a2e;' +
+        'background:#fbf4e2;color:#4a3c1c;font-size:13px;line-height:1.8;' +
+        'border-radius:6px;';
+      const esc = String(what).replace(/[&<>]/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c],
+      );
+      d.innerHTML =
+        '<div style="font-size:15px;font-weight:600;margin-bottom:6px;">' +
+        '启动失败——这个环境没能跑起来</div>' +
+        '<p style="margin:0 0 8px;">' +
+        (wasmBlocked
+          ? '宿主内嵌浏览器禁用了 WebAssembly，包内的 JS 内核回落也没能启动。'
+          : '叙事内核没能初始化。') +
+        '</p>' +
+        '<p style="margin:0 0 8px;">把下面的原始错误发给作者，可以直接定位。</p>' +
+        '<details><summary style="cursor:pointer;">原始错误文本</summary>' +
+        '<pre style="white-space:pre-wrap;word-break:break-all;margin:8px 0 0;' +
+        'font-size:12px;">' + esc + '</pre></details>';
       const intro = document.getElementById('intro');
       if (intro && intro.parentNode) intro.parentNode.insertBefore(d, intro.nextSibling);
       else document.body.insertBefore(d, document.body.firstChild);

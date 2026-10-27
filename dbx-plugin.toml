@@ -2,8 +2,8 @@ schema_version = 1
 
 # 微缩版是纯 UI 插件：游戏本体是单文件 HTML + WASM（ui/index.html），
 # 没有 sidecar、没有 MCP、没有任何 host 权限——manifest.permissions = []。
-# 构建：python3 web/build.py 把 dist/crossgame-micro.html 复制进 ui/index.html，
-# 然后 npx @dbx-app/plugin-cli package . 产出 .dbxp。
+# 叙事内核（Rust → WASM + wasm2js 回落）在作者仓库构建后内联进 ui/index.html；
+# 本仓库不做二次构建，直接 npx @dbx-app/plugin-cli package . 产出 .dbxp。
 
 [package]
 include = ["assets", "ui"]

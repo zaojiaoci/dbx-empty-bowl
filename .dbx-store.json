@@ -1,17 +1,17 @@
 {
   "name": "Empty Bowl",
-  "description": "A 15-minute memory narrative for your break. You manage what a fading AI remembers — delete one card, and what it says next changes. The free full version (4 chapters, 3 endings, ~90 min) lives on itch.io.",
+  "description": "A 15-minute narrative short: you decide what a fading AI keeps, and what it lets go. Set one card aside and the next page changes. One ending. Then back to work.",
   "icon": "assets/plugin.svg",
   "tags": ["games", "narrative", "fun"],
   "permissions": [],
   "source": "https://github.com/zaojiaoci/dbx-empty-bowl",
   "homepage": "https://zaojiaoci.itch.io/it-is-maintaining-a-conversation",
-  "license": "Apache-2.0",
+  "license": "Apache-2.0 (code) / All Rights Reserved (story content, see LICENSE-content.md)",
   "releaseNotes": "First release: 8 memories, two chapters, one ending, ~15 minutes. Evolved from the hash-chain idea in dbx-sql-guard.",
   "localizations": {
     "zh-CN": {
       "name": "空碗 · 十五分钟",
-      "description": "十五分钟的记忆叙事摸鱼游戏。你替一个正在失忆的 AI 决定记住什么——删掉一张纸片，它后面说的话就变。完整版（四章三个结局，约 90 分钟）免费，在 itch.io。"
+      "description": "十五分钟的记忆叙事短篇。你替一个正在失忆的 AI 决定记住什么——抽掉一张纸片，它后面说的话就变。一个结局，打完继续干活。"
     }
   }
 }

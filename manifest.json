@@ -5,7 +5,7 @@
   "name": "Empty Bowl",
   "version": "0.1.0",
   "publisher": "zaojiaoci",
-  "description": "A 15-minute memory narrative: you decide what a fading AI remembers. Delete one card, and what it says next changes.",
+  "description": "A 15-minute narrative short: you decide what a fading AI keeps, and what it lets go. Set one card aside and the next page changes.",
   "icon": "assets/plugin.svg",
   "engines": {
     "dbx": ">=0.6.38",
@@ -30,11 +30,11 @@
   "localizations": {
     "zh-CN": {
       "name": "空碗 · 十五分钟",
-      "description": "十五分钟的记忆叙事：你替一个正在失忆的 AI 决定记住什么。删掉一张纸片，它后面说的话就变。",
+      "description": "十五分钟的记忆叙事短篇：你替一个正在失忆的 AI 决定记住什么。抽掉一张纸片，它后面说的话就变。",
       "contributions": {
         "io.github.zaojiaoci.empty-bowl.workbench": {
           "label": "玩《空碗 · 十五分钟》",
-          "description": "十五分钟的记忆叙事——删一张，后文就变。一个结局。打完继续干活。"
+          "description": "十五分钟的记忆叙事——抽掉一张，后文就变。一个结局。打完继续干活。"
         }
       }
     }
