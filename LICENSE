@@ -1,0 +1,26 @@
+Copyright 2026 zaojiaoci
+
+This plugin's code (manifest, packaging, and the engine embedded in ui/index.html)
+is licensed under the Apache License, Version 2.0:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+
+--------------------------------------------------------------------------
+IMPORTANT — CONTENT CARVE-OUT:
+
+The game CONTENT embedded in ui/index.html (card texts, four-tier prose,
+the script, ending texts, and their enciphered forms) is NOT covered by the
+Apache license above. All rights reserved. See LICENSE-content.md.
+
+A practical reading of the two halves:
+
+  - the memory engine (slot/capacity/decay/hash-chain/replay mechanics) and
+    this plugin's packaging  →  Apache-2.0: learn from it, fork it, ship it.
+  - the story (the 60-card pool, the script, the endings)  →  mine. Copying
+    it is copyright infringement, and the golden chain heads make any such
+    copy checkable against the originals.
