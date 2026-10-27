@@ -2163,7 +2163,39 @@
     paint();
   }
 
-  document.addEventListener('DOMContentLoaded', boot);
+  /** v0.46 启动失败可见化：宿主内嵌浏览器（DBX 等）环境差异不该死得无声。
+   *  任何启动异常都画成红框上屏——尤其 WebAssembly 被宿主 CSP 拦下的那种，
+   *  否则玩家只看到「开场白在、按钮没了」，作者只看到一张截图。 */
+  function bootFail(what) {
+    try {
+      if (document.getElementById('boot-fail')) return;
+      const d = document.createElement('div');
+      d.id = 'boot-fail';
+      d.style.cssText =
+        'margin:12px 0;padding:12px 14px;border:1.5px solid #a32d2d;' +
+        'background:#fcebeb;color:#501313;font-size:13px;line-height:1.7;' +
+        'white-space:pre-wrap;word-break:break-all;border-radius:6px;';
+      d.textContent =
+        '启动失败——这个游戏没能在这台环境里跑起来：\n' +
+        what +
+        '\n\n若看到 WebAssembly / wasm-unsafe-eval 字样：是宿主安全策略禁用了 ' +
+        'WebAssembly，需要宿主放行；把这段文字发给作者即可定位。';
+      const intro = document.getElementById('intro');
+      if (intro && intro.parentNode) intro.parentNode.insertBefore(d, intro.nextSibling);
+      else document.body.insertBefore(d, document.body.firstChild);
+    } catch (_) {
+      /* 连报错都画不出来时不再叠异常 */
+    }
+  }
+  window.addEventListener('error', (e) => bootFail((e && e.message) || 'unknown error'));
+  window.addEventListener('unhandledrejection', (e) =>
+    bootFail(String((e && e.reason && (e.reason.stack || e.reason.message)) || (e && e.reason) || e)),
+  );
+  document.addEventListener('DOMContentLoaded', () => {
+    Promise.resolve()
+      .then(boot)
+      .catch((e) => bootFail(String((e && (e.stack || e.message)) || e)));
+  });
 })();
 </script>
 </body>
