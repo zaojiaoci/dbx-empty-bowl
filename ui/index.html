@@ -33206,6 +33206,14 @@ export var sim_tick = retasmFunc.sim_tick;
    *  模块级 Map——跨帧存活；renderPool 末尾更新为当前帧状态。 */
   const prevAnchored = new Map();
 
+  /** 终局记忆清单的数据（v0.49，micro）：卡的「见过」登记 + 动作层的下场。
+   *  删卡（F###）与并入（L###.### 别进它里边，抽掉时搬进家）都会让卡离池，
+   *  只有动作层分得清「删了」还是「搬走了」——所以命运记在 send() 里，
+   *  卡名记在 renderPool 首见时。零 sim 改动、零哈希风险。 */
+  const cardSeen = new Map(); // id → 卡名（首见登记，入场序）
+  const linkHome = new Map(); // 源 id → 家 id（L###.### 的并入指定）
+  const cardFate = new Map(); // id → 下场文案（F### 时定格）
+
   // ---------------------------------------------------------------- 存档（T2）
 
   /** 存档 = .rec 输入流本身（`frames` 数组）+ 链路与种子，**不序列化状态**——
@@ -33291,6 +33299,21 @@ export var sim_tick = retasmFunc.sim_tick;
     // 首次交互就解锁环境声——file:// 下 pointerdown 监听器可能晚一拍被触发
     // （浏览器延迟挂起的 AudioContext 必须在用户手势里显式 resume）。
     if (window.CROSSGAME_AUDIO) window.CROSSGAME_AUDIO.unlock();
+    for (const tok of tokens) {
+      const l = /^L(\d+)\.(\d+)$/.exec(tok);
+      if (l) linkHome.set(Number(l[1]), Number(l[2]));
+      const f = /^F(\d+)$/.exec(tok);
+      if (f) {
+        const id = Number(f[1]);
+        const dst = linkHome.get(id);
+        cardFate.set(
+          id,
+          dst
+            ? `并进 ${String(dst).padStart(3, '0')} 里了`
+            : '删了，回声只剩最淡一档',
+        );
+      }
+    }
     const text = tokens.join(' ');
     const frame = client.frame() + 1;
     frames.push({ n: frame, text });
@@ -33540,14 +33563,75 @@ export var sim_tick = retasmFunc.sim_tick;
   /** 显示回收面板并填充当前输入流（终局自动 / 提前导出共用）。
    *  中途流失的测试者没有终局信号——没有这个入口，远程样本只剩微信追问，
    *  「远程看流失」就收不到硬数据（2026-10-16 补）。 */
+  /** decay 令牌 → 回声档位文案（memory.rs decay_fx_of 的逆映射）。
+   *  卡名的失真令牌由 core 按 tier 推导进帧（§4.1，进 state_hash 的那个 decay）：
+   *  0 None⇒原文 / 1 Tracking⇒模糊 / 3 Drop⇒失真 / 2 Blur⇒编造。 */
+  function tierLabel(style) {
+    const k = style && style.decayKind;
+    if (k === 1) return '模糊';
+    if (k === 3) return '失真';
+    if (k === 2) return '编造';
+    return '原文';
+  }
+
+  /** 终局记忆清单（v0.49，micro）：把「删哪张」的后果显性化。回声四档是本作
+   *  的重玩价值，但一刷玩家删完就忘，等于最深的玩法对多数人不存在。数据全部
+   *  取自已渲染过的帧（在场状态 + decay 令牌）与 send() 留下的动作下场，
+   *  零 sim 改动、零哈希风险。只在终局出（提前导出不出——那是流失样本的自救口，
+   *  不是收成展示的时机）。 */
+  function buildMemoryList() {
+    const host = document.createElement('div');
+    host.id = 'memory-list';
+    host.style.cssText =
+      'margin:18px 0 4px;padding:12px 14px;border:1px solid rgba(128,128,128,.35);' +
+      'border-radius:6px;font-size:14px;line-height:1.9;';
+    const h = document.createElement('div');
+    h.style.cssText = 'font-size:13px;opacity:.75;margin-bottom:6px;';
+    h.textContent = '记忆清单';
+    host.appendChild(h);
+    // 本帧还在书脊上的卡（与 renderPool 同一条筛选路）。
+    const live = new Map();
+    last.nodes
+      .filter(
+        (n) =>
+          n.kind === SimClient.KIND.Text &&
+          n.style.role === ROLE.Body &&
+          /^\d{3} /.test(n.content),
+      )
+      .forEach((c) => live.set(Number(c.content.slice(0, 3)), c));
+    cardSeen.forEach((name, id) => {
+      const c = live.get(id);
+      let fate;
+      if (c) {
+        const traced = c.content.includes('（残迹）');
+        fate = traced
+          ? '成了残迹，读不出了'
+          : tierLabel(c.style) === '原文'
+            ? '还在书脊，回声还是原文'
+            : `还在书脊，回声已经${tierLabel(c.style)}`;
+      } else {
+        fate = cardFate.get(id) || '删了，回声只剩最淡一档';
+      }
+      const row = document.createElement('div');
+      row.textContent = `${String(id).padStart(3, '0')} ${name} —— ${fate}`;
+      host.appendChild(row);
+    });
+    return host;
+  }
+
   function showRecPanel() {
     $('#rec-panel').classList.remove('hidden');
     $('#rec-text').value = buildRec();
+    // 终局记忆清单（v0.49）：放在回收面板**前面**——先看这一局的收成，
+    // 再看导出框。只出一次、只在终局出。
+    const panel0 = $('#rec-panel');
+    if (MICRO && endingPlayed() && !document.getElementById('memory-list')) {
+      panel0.parentNode.insertBefore(buildMemoryList(), panel0);
+    }
     // 微缩版 Credits（形态 B 的导流落点，2026-10-27）：只在微缩版出现，只出现
     // 一次——署名演化故事 + 完整版去处。合规形态是「Credits 屏署名」（不是弹窗
     // 不是横幅）；.rec 导出位的落点是它自己的面板，两处都有正当身份。
     if (MICRO) {
-      const panel0 = $('#rec-panel');
       if (!document.getElementById('micro-credits')) {
         const c = document.createElement('div');
         c.id = 'micro-credits';
@@ -33555,6 +33639,8 @@ export var sim_tick = retasmFunc.sim_tick;
           'margin-top:18px;padding-top:12px;border-top:1px solid rgba(128,128,128,.35);opacity:.85;font-size:14px;line-height:1.7;';
         c.innerHTML =
           '<p>空碗 · 十五分钟——从 dbx-sql-guard 的哈希链思想演化而来。</p>' +
+          '<p>这份清单只是开头。那份对不上的东西到底是什么，把账放到它面前之后' +
+          '又发生了什么——完整版里会摊开。</p>' +
           '<p>完整版（四章 14 卡三个结局，约 90 分钟）免费：<a href="https://zaojiaoci.itch.io/it-is-maintaining-a-conversation" target="_blank" rel="noopener">zaojiaoci.itch.io/it-is-maintaining-a-conversation</a></p>';
         panel0.parentNode.insertBefore(c, panel0.nextSibling);
       }
@@ -33562,8 +33648,9 @@ export var sim_tick = retasmFunc.sim_tick;
     // v0.44（作者结局实测）：终局时面板曾躺在文档最底部，没有任何东西把它带进
     // 视野——玩家打完看到「什么都没发生」，又去点那枚红按钮，只换来一句
     // 「这一局已经收尾了。」。与提前导出同一条路：出现即进视野。
+    // v0.49：终局时记忆清单在面板正上方 ⇒ 滚它（面板紧随其后一起进视野）。
     // block:'nearest' 不抢终幕台词——它就在面板上方一屏内。
-    const panel = $('#rec-panel');
+    const panel = document.getElementById('memory-list') || $('#rec-panel');
     if (typeof panel.scrollIntoView !== 'function') return; // jsdom（dom-verify）无布局引擎
     try {
       panel.scrollIntoView({
@@ -33652,6 +33739,8 @@ export var sim_tick = retasmFunc.sim_tick;
       } else {
         nameWrap.textContent = raw;
       }
+      // 记忆清单（v0.49）：首见登记卡名——删掉的卡不会再进帧，名字只能在这里留底。
+      if (!cardSeen.has(id)) cardSeen.set(id, m ? m[2] : raw);
       if (traced) nameWrap.appendChild(el('span', 'card-id', ' （残迹）'));
       cell.appendChild(nameWrap);
       // 这张纸片是从哪一页夹进来的（sim 给的 introduced_page）。
