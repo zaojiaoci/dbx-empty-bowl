@@ -2165,21 +2165,58 @@
 
   /** v0.46 启动失败可见化：宿主内嵌浏览器（DBX 等）环境差异不该死得无声。
    *  任何启动异常都画成红框上屏——尤其 WebAssembly 被宿主 CSP 拦下的那种，
-   *  否则玩家只看到「开场白在、按钮没了」，作者只看到一张截图。 */
+   *  否则玩家只看到「开场白在、按钮没了」，作者只看到一张截图。
+   *
+   *  v0.47（DBX 实机归因）：CSP 禁 WASM 是「宿主侧可归因」的失败——报错文本
+   *  带 WebAssembly / wasm-unsafe-eval 字样时换成可行动的降级面板（人话说明 +
+   *  网页版入口 + 给宿主的修复建议），原文错误收进 <details> 保留，便于复制
+   *  定位。其余未知失败仍走红框原文。 */
   function bootFail(what) {
     try {
       if (document.getElementById('boot-fail')) return;
+      const wasmBlocked = /WebAssembly|wasm-unsafe-eval|unsafe-eval/i.test(what);
       const d = document.createElement('div');
       d.id = 'boot-fail';
-      d.style.cssText =
-        'margin:12px 0;padding:12px 14px;border:1.5px solid #a32d2d;' +
-        'background:#fcebeb;color:#501313;font-size:13px;line-height:1.7;' +
-        'white-space:pre-wrap;word-break:break-all;border-radius:6px;';
-      d.textContent =
-        '启动失败——这个游戏没能在这台环境里跑起来：\n' +
-        what +
-        '\n\n若看到 WebAssembly / wasm-unsafe-eval 字样：是宿主安全策略禁用了 ' +
-        'WebAssembly，需要宿主放行；把这段文字发给作者即可定位。';
+      if (wasmBlocked) {
+        d.style.cssText =
+          'margin:12px 0;padding:14px 16px;border:1.5px solid #b98a2e;' +
+          'background:#fbf4e2;color:#4a3c1c;font-size:13px;line-height:1.8;' +
+          'border-radius:6px;';
+        const esc = String(what).replace(/[&<>]/g, (c) =>
+          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c],
+        );
+        d.innerHTML =
+          '<div style="font-size:15px;font-weight:600;margin-bottom:6px;">' +
+          '启动失败——宿主禁用了 WebAssembly</div>' +
+          '<p style="margin:0 0 8px;">这个游戏的叙事内核是 WASM。宿主内嵌浏览器的' +
+          '安全策略（CSP）<code>script-src</code> 里没有 ' +
+          "<code>'wasm-unsafe-eval'</code>，浏览器直接拒绝创建 WebAssembly 对象" +
+          '——于是开场白还在，按钮一个都渲染不出来。</p>' +
+          '<p style="margin:0 0 8px;"><b>这不是游戏坏了，也不是操作系统或浏览器' +
+          '版本的问题</b>：同一份文件在 Chrome / Edge / Firefox / Safari 里正常。</p>' +
+          '<p style="margin:0 0 8px;">现在可以先玩网页版：' +
+          '<a href="https://zaojiaoci.itch.io/it-is-maintaining-a-conversation"' +
+          ' target="_blank" rel="noopener">zaojiaoci.itch.io/it-is-maintaining-a-conversation</a>' +
+          '（点不开就把地址手动复制到浏览器）。</p>' +
+          '<p style="margin:0 0 8px;">给宿主的修复建议：在 webview 的 CSP ' +
+          "<code>script-src</code> 中加入 <code>'wasm-unsafe-eval'</code>。" +
+          "该策略已含 <code>'unsafe-inline'</code>，放行 WASM 并不会放宽" +
+          '它的安全模型。</p>' +
+          '<details><summary style="cursor:pointer;">原始错误文本' +
+          '（复制给作者或宿主可直接定位）</summary>' +
+          '<pre style="white-space:pre-wrap;word-break:break-all;margin:8px 0 0;' +
+          'font-size:12px;">' + esc + '</pre></details>';
+      } else {
+        d.style.cssText =
+          'margin:12px 0;padding:12px 14px;border:1.5px solid #a32d2d;' +
+          'background:#fcebeb;color:#501313;font-size:13px;line-height:1.7;' +
+          'white-space:pre-wrap;word-break:break-all;border-radius:6px;';
+        d.textContent =
+          '启动失败——这个游戏没能在这台环境里跑起来：\n' +
+          what +
+          '\n\n若看到 WebAssembly / wasm-unsafe-eval 字样：是宿主安全策略禁用了 ' +
+          'WebAssembly，需要宿主放行；把这段文字发给作者即可定位。';
+      }
       const intro = document.getElementById('intro');
       if (intro && intro.parentNode) intro.parentNode.insertBefore(d, intro.nextSibling);
       else document.body.insertBefore(d, document.body.firstChild);
