@@ -24,6 +24,6 @@ A practical reading of the two halves:
 
   - the memory engine (slot/capacity/decay/hash-chain/replay mechanics) and
     this plugin's packaging  →  Apache-2.0: learn from it, fork it, ship it.
-  - the story (the 60-card pool, the script, the endings)  →  mine. Copying
-    it is copyright infringement, and the golden chain heads make any such
-    copy checkable against the originals.
+  - the story (the card pool, the script, the endings)  →  mine. Copying
+    it is copyright infringement; this notice ships inside the package, and
+    the package sha256 is pinned in the store catalog.

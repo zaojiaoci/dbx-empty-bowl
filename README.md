@@ -4,10 +4,12 @@
 
 A 15-minute memory narrative that runs inside DBX. You are the memory module of
 an AI that is forgetting: you decide which of its memories stay and which go.
-Delete one card, and what it says on the next pages changes — visibly.
+Set one card aside, and what it says on the next pages changes — visibly.
 
 - 8 memories, two chapters, one ending. ~15 minutes.
-- Pure local: one self-contained HTML file + WASM. No network, no storage, no permissions.
+- Pure local: one self-contained HTML file + WASM. No network, no host
+  permissions. UI preferences (sound, font size) use browser `localStorage`
+  when the host allows it and stay unsaved when it does not.
 - Every playthrough exports a replayable `.rec` stream — anyone can re-run
   anyone's session and see exactly which decision landed where.
 - Evolved from the hash-chain idea in [dbx-sql-guard](https://github.com/zaojiaoci/dbx-sql-guard):
@@ -38,7 +40,8 @@ see [LICENSE-content.md](LICENSE-content.md).
 决定它记住什么、忘掉什么。删掉一张纸片，它后面几页说的话就会变——看得见地变。
 
 - 8 条记忆、两章、一个结局。约 15 分钟。
-- 纯本地：单文件 HTML + WASM，无网络、无存储、零权限。
+- 纯本地：单文件 HTML + WASM，无网络、无 Host 权限。界面偏好（声音、字号）
+  用浏览器 `localStorage`，宿主允许就记住，不允许就不记。
 - 每一局都能导出可回放的 `.rec` 输入流——任何人可以重放任何人的一局，
   每个决定落在哪一帧都查得到。
 - 从 [dbx-sql-guard](https://github.com/zaojiaoci/dbx-sql-guard) 的哈希链思想

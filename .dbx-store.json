@@ -2,7 +2,11 @@
   "name": "Empty Bowl",
   "description": "A 15-minute narrative short: you decide what a fading AI keeps, and what it lets go. Set one card aside and the next page changes. One ending. Then back to work.",
   "icon": "https://raw.githubusercontent.com/zaojiaoci/dbx-empty-bowl/main/assets/plugin.svg",
-  "tags": ["games", "narrative", "fun"],
+  "tags": [
+    "games",
+    "narrative",
+    "short"
+  ],
   "permissions": [],
   "source": "https://github.com/zaojiaoci/dbx-empty-bowl",
   "homepage": "https://zaojiaoci.itch.io/it-is-maintaining-a-conversation",
