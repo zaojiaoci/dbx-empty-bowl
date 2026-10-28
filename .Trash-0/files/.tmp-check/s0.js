@@ -1,0 +1,1 @@
+window.CROSSGAME_DEFAULT_V2 = ("false" === "true");
