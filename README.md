@@ -29,6 +29,11 @@ reviewers on request.
 npx @dbx-app/plugin-cli package .
 ```
 
+`ui/index.html` is the **only** copy that carries the store-ready trims (no debug
+panel, no session save, no external links). Upstream builds of the micro version
+are playtest artifacts and still contain those; do not copy one over this file
+without re-applying the trims.
+
 The game content inside `ui/index.html` is **not** under the code license —
 see [LICENSE-content.md](LICENSE-content.md).
 
@@ -51,3 +56,7 @@ see [LICENSE-content.md](LICENSE-content.md).
 https://zaojiaoci.itch.io/it-is-maintaining-a-conversation
 
 代码 Apache-2.0，游戏内容保留所有权利——见 [LICENSE-content.md](LICENSE-content.md)。
+
+`ui/index.html` 是唯一带商店裁剪的副本（无调试面板、无会话存档、无外链）。
+上游构建出的微缩版是试玩产物，这些都还在——别直接覆盖本文件，覆盖等于把
+审核风险带回来。
