@@ -9,7 +9,10 @@ permissions:
 
 jobs:
   release:
-    uses: t8y2/dbx/.github/workflows/plugin-release-reusable.yml@plugin-sdk-v1
+    # 官方模板写的是 @plugin-sdk-v1，但该 ref 在 t8y2/dbx 上并不存在
+    # （2026-10-28 用 git ls-remote 核对过，只有 plugin-cli-v0.1.x 的 tag）。
+    # 钉到 main 上该文件最后一次修改的 commit，保证可复现；上游建好 tag 后可切回。
+    uses: t8y2/dbx/.github/workflows/plugin-release-reusable.yml@859bee2c403bd45f20e17d4d533a62c469a6cad5
     with:
       release-tag: ${{ github.event.release.tag_name }}
       package-command: dbx-plugin package .
