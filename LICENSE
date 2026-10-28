@@ -18,7 +18,8 @@ IMPORTANT — CONTENT CARVE-OUT:
 
 The game CONTENT embedded in ui/index.html (card texts, four-tier prose,
 the script, ending texts, and their enciphered forms) is NOT covered by the
-Apache license above. All rights reserved. See LICENSE-content.md.
+Apache license above. All rights reserved. The full split is documented in
+the repository's LICENSE-content.md.
 
 A practical reading of the two halves:
 
