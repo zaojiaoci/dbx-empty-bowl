@@ -1,1 +1,0 @@
-window.CROSSGAME_DEFAULT_MICRO = ("true" === "true");
