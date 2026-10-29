@@ -11,7 +11,9 @@ Set one card aside, and what it says on the next pages changes — visibly.
   permissions. UI preferences (sound, font size) use browser `localStorage`
   when the host allows it and stay unsaved when it does not.
 - Every playthrough exports a replayable `.rec` stream — anyone can re-run
-  anyone's session and see exactly which decision landed where.
+  anyone's session and see exactly which decision landed where. Exporting
+  copies the stream to the system clipboard; it only happens when you press
+  the button.
 - Evolved from the hash-chain idea in [dbx-sql-guard](https://github.com/zaojiaoci/dbx-sql-guard):
   the audit trail's tamper-evident chain, turned into a story about forgetting.
 
@@ -48,7 +50,7 @@ see [LICENSE-content.md](LICENSE-content.md).
 - 纯本地：单文件 HTML + WASM，无网络、无 Host 权限。界面偏好（声音、字号）
   用浏览器 `localStorage`，宿主允许就记住，不允许就不记。
 - 每一局都能导出可回放的 `.rec` 输入流——任何人可以重放任何人的一局，
-  每个决定落在哪一帧都查得到。
+  每个决定落在哪一帧都查得到。导出会写入系统剪贴板，只在你按按钮时发生。
 - 从 [dbx-sql-guard](https://github.com/zaojiaoci/dbx-sql-guard) 的哈希链思想
   演化而来：审计留痕那条防篡改的链，被写成了一个关于遗忘的故事。
 

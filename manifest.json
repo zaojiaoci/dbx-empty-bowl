@@ -3,7 +3,7 @@
   "manifest_version": 1,
   "id": "io.github.zaojiaoci.empty-bowl",
   "name": "Empty Bowl",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "zaojiaoci",
   "description": "A 15-minute narrative short: you decide what a fading AI keeps, and what it lets go. Set one card aside and the next page changes.",
   "icon": "assets/plugin.svg",

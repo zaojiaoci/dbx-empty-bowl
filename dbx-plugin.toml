@@ -4,8 +4,10 @@ schema_version = 1
 # 没有 sidecar、没有 MCP、没有任何 host 权限——manifest.permissions = []。
 # 叙事内核（Rust → WASM + wasm2js 回落）在作者仓库构建后内联进 ui/index.html；
 # 本仓库不做二次构建，直接 npx @dbx-app/plugin-cli package . 产出 .dbxp。
-# 包只收 assets/ 与 ui/，所以授权文本在 assets/ 下各有一份副本；
-# 改根目录的 LICENSE / LICENSE-content.md 后要重新复制，否则包内声明会过期。
+# 包只收 assets/ 与 ui/，所以两份授权文本在 assets/ 下各有一份副本：
+# assets/LICENSE 是 Apache-2.0 全文（含内容 carve-out 附注），
+# assets/LICENSE-content.md 是内容授权说明。改根目录的
+# LICENSE / LICENSE-content.md 后要重新复制，否则包内声明会过期。
 
 [package]
 include = ["assets", "ui"]
